@@ -2,13 +2,13 @@
 #install.packages("readxl")
 library("readxl")
 # xls files
-setwd('D://Téléchargements vrac//sysnav')
-rem_im=read_excel("2020-02-11 - Données Test - Data Scientist.xlsx",sheet=1)  #1ere 
-rem_km_serv=as.data.frame(read_excel("2020-02-11 - Données Test - Data Scientist.xlsx",sheet=2))
-rem_km_prest=as.data.frame(read_excel("2020-02-11 - Données Test - Data Scientist.xlsx",sheet=3))
+setwd('D://TÃ©lÃ©chargements vrac//sysnav')
+rem_im=read_excel("2020-02-11 - DonnÃ©es Test - Data Scientist.xlsx",sheet=1)  #1ere 
+rem_km_serv=as.data.frame(read_excel("2020-02-11 - DonnÃ©es Test - Data Scientist.xlsx",sheet=2))
+rem_km_prest=as.data.frame(read_excel("2020-02-11 - DonnÃ©es Test - Data Scientist.xlsx",sheet=3))
 
-#détecter les anomalies
-#calculer les distances par journée de rem_km_serv
+#dÃ©tecter les anomalies
+#calculer les distances par journÃ©e de rem_km_serv
 km_serveur=c()
 diff=c()
 diff_pcent=c()
@@ -28,21 +28,17 @@ rem_km=cbind(rem_km,diff)
 rem_km=cbind(rem_km,diff_pcent)
 rem_km=cbind(rem_km,n_photo)
 
-#détecter lorsque le syst est en panne
+#dÃ©tecter lorsque le syst est en panne
 rem_km_pannesyst=subset(rem_km,rem_km$km_serveur==0) #tableau panne syst
 rem_km=subset(rem_km,rem_km$km_serveur!=0) #rem_km sans les valeurs zeros
 tb_panne= table(rem_km_pannesyst$datemission,rem_km_pannesyst$Vehicle_id)#jours de panne par voiture
 somme_jours_panne=as.data.frame(colSums(tb_panne)) #somme jours de panne par voiture
 
 
-hist(rem_km$diff,50,main="histogramme écarts mesurés",xlab="écarts km serveur km système",ylab="fréquence")
+hist(rem_km$diff,50,main="histogramme Ã©carts mesurÃ©s",xlab="Ã©carts km serveur km systÃ¨me",ylab="frÃ©quence")
 
-hist(rem_km$diff_pcent,50,main="histogramme écarts mesurés en %",xlab="écarts km serveur km système",ylab="fréquence")
+hist(rem_km$diff_pcent,50,main="histogramme Ã©carts mesurÃ©s en %",xlab="Ã©carts km serveur km systÃ¨me",ylab="frÃ©quence")
 
-library(ggplot2)
-library(mvtnorm)
-library(radiant)
-library(reshape)
 
 
 # classification via gaussienne 3 sigmas
@@ -68,28 +64,28 @@ for (k in 1:length(classification)){
     j=j+1}
 }
 
-#j nbre de valeurs problématiques
+#j nbre de valeurs problÃ©matiques
 
-rem_km_ok=subset(rem_km,rem_km$classification==FALSE) #data ou les valeurs sont dans l'intervalle tolérance
-rem_km_pb=subset(rem_km,rem_km$classification==TRUE) #data en dehors de l'intervalle de tolérance
+rem_km_ok=subset(rem_km,rem_km$classification==FALSE) #data ou les valeurs sont dans l'intervalle tolÃ©rance
+rem_km_pb=subset(rem_km,rem_km$classification==TRUE) #data en dehors de l'intervalle de tolÃ©rance
 
-#histogramme des valeurs problématiques et de celles correctes
+#histogramme des valeurs problÃ©matiques et de celles correctes
 to.plot = data.frame(x = rem_km$diff_pcent,
                      label =rem_km$classification)
 ggplot(to.plot, aes(x, color = label, fill = label))+xlab("Ecart en pourcentage")+ylab("Nombre d'occurence")+
   geom_histogram(alpha=0.5, position="identity", bins = 50)+
   theme(legend.position = "bottom")
 
-#histogramme de la fréquence des problèmes en fonction du véhicule
+#histogramme de la frÃ©quence des problÃ¨mes en fonction du vÃ©hicule
 tb_pb_instal=as.data.frame(table(rem_km_pb$Vehicle_id))
-tb_pb_instal_j=table(rem_km_pb$datemission,rem_km_pb$Vehicle_id) #table des erreurs croisant la date et la voiture concernée
+tb_pb_instal_j=table(rem_km_pb$datemission,rem_km_pb$Vehicle_id) #table des erreurs croisant la date et la voiture concernÃ©e
 
 hist(rem_km_pb$Vehicle_id,nrow(tb_pb_instal))
 moyenne_pb=mean(tb_pb_instal$Freq)
 
-#histogramme de la frequence des problèmes en fonction de la date d'émission
+#histogramme de la frequence des problÃ¨mes en fonction de la date d'Ã©mission
 tb_pb_date=as.data.frame(table(rem_km_pb$datemission))
-hist(rem_km_pb$datemission,nrow(tb_pb_date),freq=TRUE,main="frequence des problèmes",xlab="date")
+hist(rem_km_pb$datemission,nrow(tb_pb_date),freq=TRUE,main="frequence des problÃ¨mes",xlab="date")
 
 library(MASS)
 
@@ -113,7 +109,7 @@ for (i in 1:nrow(rem_im)){
 rem_im=cbind(rem_im,class)
 
 
-#date en abscisse, nb de photo / jour en ordonnée
+#date en abscisse, nb de photo / jour en ordonnÃ©e
 data3 = data.frame(x1 = rem_km$datemission,x2 = rem_km$n_photo, label=rem_km$classification)
 
 library(ggplot2)
